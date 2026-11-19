@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>رسالة خاصة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #111111;
+      --paper: #f7f4eb;
+      --pink: #ff86b7;
+      --green: #baf35a;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100dvh;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100dvh;
+      margin: 0;
+      overflow-y: auto;
+      display: grid;
+      place-items: center;
+      padding: 20px 12px;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(255, 134, 183, 0.22) 0 7px, transparent 8px),
+        radial-gradient(circle at 88% 82%, rgba(186, 243, 90, 0.28) 0 9px, transparent 10px),
+        var(--paper);
+      color: var(--ink);
+      font-family: "Cairo", sans-serif;
+    }
+
+    .card {
+      position: relative;
+      width: min(92vw, 520px);
+      min-height: min(520px, calc(100dvh - 40px));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(18px, 3.5dvh, 28px);
+      padding: clamp(24px, 6dvh, 48px) clamp(18px, 6vw, 42px);
+      text-align: center;
+      background: var(--white);
+      border: 4px solid var(--ink);
+      border-radius: 28px;
+      box-shadow: 10px 10px 0 var(--ink);
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      margin: 0;
+      padding: 8px 18px 6px;
+      background: #ffd84d;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      box-shadow: 4px 4px 0 var(--ink);
+      font-size: clamp(0.78rem, 3vw, 0.95rem);
+      font-weight: 900;
+      line-height: 1.4;
+      transform: rotate(-1deg);
+    }
+
+    .content {
+      width: 100%;
+    }
+
+    h1 {
+      max-width: 440px;
+      margin: 0 auto;
+      font-size: clamp(1.65rem, 7vw, 2.75rem);
+      font-weight: 900;
+      line-height: 1.55;
+      letter-spacing: -0.02em;
+    }
+
+    .note {
+      margin: clamp(12px, 2.5dvh, 18px) 0 0;
+      color: #575757;
+      font-size: clamp(0.95rem, 3.5vw, 1.15rem);
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .actions {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .action-button {
+      min-width: 110px;
+      min-height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 28px 7px;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      box-shadow: 4px 4px 0 var(--ink);
+      color: var(--ink);
+      background: var(--white);
+      font-family: inherit;
+      font-size: 1.15rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .action-button.primary {
+      background: var(--pink);
+      transition:
+        transform 260ms cubic-bezier(.2, .8, .2, 1),
+        padding 260ms cubic-bezier(.2, .8, .2, 1),
+        box-shadow 260ms ease;
+    }
+
+    .action-button.secondary {
+      background: var(--white);
+    }
+
+    .action-button.runaway {
+      position: absolute;
+      z-index: 3;
+      white-space: nowrap;
+      touch-action: manipulation;
+      transition:
+        left 180ms cubic-bezier(.2, .9, .3, 1),
+        top 180ms cubic-bezier(.2, .9, .3, 1),
+        transform 180ms ease;
+    }
+
+    .content {
+      transition: opacity 180ms ease, transform 180ms cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .card.stage-changing .content {
+      opacity: 0;
+      transform: scale(0.94) translateY(8px);
+    }
+
+    .card.stage-entering .content {
+      animation: stagePop 320ms cubic-bezier(.2, .8, .2, 1) both;
+    }
+
+    @keyframes stagePop {
+      from {
+        opacity: 0;
+        transform: scale(0.94) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    #celebration-canvas {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .floating-stars {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 21;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .floating-star {
+      position: absolute;
+      font-size: clamp(22px, 5vw, 44px);
+      filter: drop-shadow(3px 3px 0 var(--ink));
+      animation: floatStar 3.2s ease-in-out infinite alternate;
+    }
+
+    .floating-star:nth-child(1) { top: 8%; left: 5%; }
+    .floating-star:nth-child(2) { top: 18%; right: 7%; animation-delay: -1.1s; }
+    .floating-star:nth-child(3) { bottom: 12%; left: 8%; animation-delay: -2s; }
+    .floating-star:nth-child(4) { bottom: 9%; right: 5%; animation-delay: -.6s; }
+
+    @keyframes floatStar {
+      from { transform: translateY(-8px) rotate(-8deg) scale(.9); }
+      to { transform: translateY(10px) rotate(8deg) scale(1.12); }
+    }
+
+    .card.finale {
+      z-index: 30;
+      min-height: 0;
+      gap: clamp(8px, 1.5dvh, 12px);
+      justify-content: center;
+      padding: clamp(12px, 2.5dvh, 20px) clamp(12px, 4vw, 24px);
+      background: #fffdf7;
+      animation: finalePop 520ms cubic-bezier(.2, .8, .2, 1) both;
+    }
+
+    @keyframes finalePop {
+      from { opacity: 0; transform: scale(.82) rotate(-2deg); }
+      70% { transform: scale(1.03) rotate(1deg); }
+      to { opacity: 1; transform: scale(1) rotate(0); }
+    }
+
+    .poster-image {
+      display: block;
+      width: auto;
+      max-width: 100%;
+      max-height: 46dvh;
+      object-fit: contain;
+      border: 4px solid var(--ink);
+      border-radius: 18px;
+      box-shadow: 7px 7px 0 var(--ink);
+      background: #fff;
+    }
+
+    .finale-message {
+      max-width: 460px;
+      margin: 0;
+      font-size: clamp(.86rem, 3.2vw, 1.08rem);
+      font-weight: 900;
+      line-height: 1.65;
+    }
+
+    .list-badge {
+      flex: 0 0 auto;
+      margin: 0;
+      padding: 7px 16px 5px;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      background: #ffd84d;
+      box-shadow: 4px 4px 0 var(--ink);
+      font-size: clamp(.82rem, 3vw, 1rem);
+      font-weight: 900;
+      line-height: 1.5;
+    }
+
+    .card.finale ~ #celebration-canvas,
+    .card.finale ~ .floating-stars {
+      display: block;
+    }
+
+    .card.finale .badge,
+    .card.finale .content,
+    .card.finale .actions {
+      display: none;
+    }
+
+    .finale-reveal {
+      display: none;
+      width: 100%;
+    }
+
+    .card.finale .finale-reveal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(8px, 1.5dvh, 12px);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px 12px;
+      }
+
+      .card {
+        width: calc(100vw - 24px);
+        min-height: min(480px, calc(100dvh - 40px));
+        border-radius: 22px;
+        box-shadow: 7px 7px 0 var(--ink);
+      }
+
+      .actions {
+        gap: 10px;
+      }
+
+      .action-button {
+        min-width: 96px;
+        min-height: 48px;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .card {
+        gap: 12px;
+        padding-block: 16px;
+      }
+
+      h1 {
+        font-size: clamp(1.35rem, 6vw, 2rem);
+        line-height: 1.4;
+      }
+
+      .note {
+        margin-top: 8px;
+      }
+
+      .action-button {
+        min-height: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" aria-live="polite">
+    <div class="badge">رسالة خاصة 📩</div>
+
+    <div class="content">
+      <h1 id="main-text">أنا أيوب كنار، بالطبع تعرفونني أليس كذلك؟</h1>
+      <p class="note" id="note-text">لا تجرب الضغط على لا 😊</p>
+    </div>
+
+    <div class="actions" aria-label="اختيار الإجابة">
+      <button class="action-button primary" type="button" id="yes-button">نعم</button>
+      <button class="action-button secondary" type="button" id="no-button">لا</button>
+    </div>
+
+    <section class="finale-reveal" aria-label="الإعلان النهائي">
+      <img class="poster-image" src="brother.png" alt="المترشح كنار أمين">
+      <p class="finale-message">من فضلكم انتخبوا أخي المترشح لانتخابات المجلس الشعبي الولائي وشكراً لكم مسبقاً 😊</p>
+      <div class="list-badge">القائمة رقم 05 • رقم 38</div>
+    </section>
+  </main>
+
+  <canvas id="celebration-canvas" aria-hidden="true"></canvas>
+  <div class="floating-stars" aria-hidden="true">
+    <span class="floating-star">⭐</span>
+    <span class="floating-star">✨</span>
+    <span class="floating-star">🌟</span>
+    <span class="floating-star">⭐</span>
+  </div>
+
+  <script>
+    (() => {
+      const card = document.querySelector('.card');
+      const noButton = document.getElementById('no-button');
+      const yesButton = document.getElementById('yes-button');
+
+      const phrases = [
+        'متأكد؟ 🤔',
+        'فكر مليح!',
+        'حاول مرة أخرى 😅',
+        'مستحيل تقدر!',
+        'اضغط نعم وخلاص!',
+        'يا أخي اضغط نعم 😂',
+        'ما تقدرش عليا!'
+      ];
+
+      const mainText = document.getElementById('main-text');
+      const noteText = document.getElementById('note-text');
+
+      const stages = [
+        {
+          main: 'أنا أيوب كنار، بالطبع تعرفونني أليس كذلك؟',
+          note: 'لا تجرب الضغط على لا 😊'
+        },
+        {
+          main: 'بما أنك تعرفني، هل يمكنك أن تفعل أمراً من أجلي؟',
+          note: 'لا تجرب الضغط على لا 🫂'
+        },
+        {
+          main: 'المطلوب منك شيء بسيط، هل تريد تنفيذه؟',
+          note: 'لا تجرب الضغط على لا 🙅'
+        }
+      ];
+
+      let currentStage = 0;
+      let attempt = 0;
+      let isAbsPositioned = false;
+      let lastEscape = 0;
+      let isChangingStage = false;
+
+      function resetNoButton() {
+        noButton.classList.remove('runaway');
+        noButton.style.removeProperty('left');
+        noButton.style.removeProperty('top');
+        noButton.style.removeProperty('transform');
+        noButton.textContent = 'لا';
+        attempt = 0;
+        isAbsPositioned = false;
+        lastEscape = 0;
+      }
+
+      function resetYesButton() {
+        yesButton.style.transform = 'scale(1)';
+        yesButton.style.paddingInline = '';
+      }
+
+      function startCelebration() {
+        const canvas = document.getElementById('celebration-canvas');
+        const context = canvas.getContext('2d');
+        const colors = ['#ffd84d', '#ff86b7', '#baf35a', '#61d7ff', '#ffffff'];
+        let particles = [];
+
+        function resizeCanvas() {
+          const ratio = Math.min(window.devicePixelRatio || 1, 2);
+          canvas.width = window.innerWidth * ratio;
+          canvas.height = window.innerHeight * ratio;
+          canvas.style.width = `${window.innerWidth}px`;
+          canvas.style.height = `${window.innerHeight}px`;
+          context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        }
+
+        function burst(count = 140) {
+          for (let index = 0; index < count; index += 1) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 3 + Math.random() * 8;
+            particles.push({
+              x: window.innerWidth * (.25 + Math.random() * .5),
+              y: window.innerHeight * (.35 + Math.random() * .25),
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed - 4,
+              gravity: .12 + Math.random() * .12,
+              size: 4 + Math.random() * 8,
+              rotation: Math.random() * Math.PI,
+              spin: (Math.random() - .5) * .24,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              life: 180 + Math.random() * 100
+            });
+          }
+        }
+
+        function animate() {
+          context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+          if (Math.random() < .035) burst(3);
+
+          particles = particles.filter(particle => particle.life > 0);
+          particles.forEach(particle => {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += particle.gravity;
+            particle.vx *= .995;
+            particle.rotation += particle.spin;
+            particle.life -= 1;
+
+            context.save();
+            context.translate(particle.x, particle.y);
+            context.rotate(particle.rotation);
+            context.fillStyle = particle.color;
+            context.strokeStyle = '#111111';
+            context.lineWidth = 1;
+            if (Math.random() < .18) {
+              context.beginPath();
+              context.moveTo(0, -particle.size);
+              context.lineTo(particle.size * .42, -particle.size * .25);
+              context.lineTo(particle.size, 0);
+              context.lineTo(particle.size * .42, particle.size * .25);
+              context.lineTo(0, particle.size);
+              context.lineTo(-particle.size * .42, particle.size * .25);
+              context.lineTo(-particle.size, 0);
+              context.lineTo(-particle.size * .42, -particle.size * .25);
+              context.closePath();
+              context.fill();
+              context.stroke();
+            } else {
+              context.fillRect(-particle.size / 2, -particle.size / 3, particle.size, particle.size * .66);
+              context.strokeRect(-particle.size / 2, -particle.size / 3, particle.size, particle.size * .66);
+            }
+            context.restore();
+          });
+
+          window.requestAnimationFrame(animate);
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        burst(190);
+        animate();
+      }
+
+      function showFinale() {
+        isChangingStage = true;
+        card.classList.remove('stage-entering');
+        card.classList.add('stage-changing');
+
+        window.setTimeout(() => {
+          resetYesButton();
+          resetNoButton();
+          card.classList.remove('stage-changing');
+          card.classList.add('finale', 'stage-entering');
+          startCelebration();
+
+          window.setTimeout(() => {
+            card.classList.remove('stage-entering');
+            isChangingStage = false;
+          }, 520);
+        }, 180);
+      }
+
+      function goToNextStage() {
+        if (isChangingStage) return;
+
+        if (currentStage === stages.length - 1) {
+          showFinale();
+          return;
+        }
+
+        isChangingStage = true;
+        card.classList.remove('stage-entering');
+        card.classList.add('stage-changing');
+
+        window.setTimeout(() => {
+          currentStage += 1;
+          mainText.textContent = stages[currentStage].main;
+          noteText.textContent = stages[currentStage].note;
+          resetYesButton();
+          resetNoButton();
+
+          card.classList.remove('stage-changing');
+          card.classList.add('stage-entering');
+
+          window.setTimeout(() => {
+            card.classList.remove('stage-entering');
+            isChangingStage = false;
+          }, 320);
+        }, 180);
+      }
+
+      function moveNoButton(event) {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        const now = Date.now();
+        if (now - lastEscape < 120) return;
+        lastEscape = now;
+
+        if (!isAbsPositioned) {
+          const cardRect = card.getBoundingClientRect();
+          const buttonRect = noButton.getBoundingClientRect();
+          noButton.classList.add('runaway');
+          noButton.style.left = `${buttonRect.left - cardRect.left}px`;
+          noButton.style.top = `${buttonRect.top - cardRect.top}px`;
+          isAbsPositioned = true;
+
+          requestAnimationFrame(() => {
+            noButton.style.transform = 'rotate(-3deg) scale(1.04)';
+          });
+        }
+
+        noButton.textContent = phrases[Math.min(attempt, phrases.length - 1)];
+
+        const cardWidth = card.clientWidth;
+        const cardHeight = card.clientHeight;
+        const buttonWidth = noButton.offsetWidth;
+        const buttonHeight = noButton.offsetHeight;
+        const margin = 14;
+        const yesRect = yesButton.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        const yesLocal = {
+          left: yesRect.left - cardRect.left,
+          top: yesRect.top - cardRect.top,
+          right: yesRect.right - cardRect.left,
+          bottom: yesRect.bottom - cardRect.top
+        };
+
+        const minX = margin;
+        const maxX = Math.max(minX, cardWidth - buttonWidth - margin);
+        const minY = margin;
+        const maxY = Math.max(minY, cardHeight - buttonHeight - margin);
+        let nextX;
+        let nextY;
+
+        do {
+          nextX = Math.round(minX + Math.random() * (maxX - minX));
+          nextY = Math.round(minY + Math.random() * (maxY - minY));
+        } while (
+          nextX < yesLocal.right + 10 &&
+          nextX + buttonWidth > yesLocal.left - 10 &&
+          nextY < yesLocal.bottom + 10 &&
+          nextY + buttonHeight > yesLocal.top - 10
+        );
+
+        noButton.style.left = `${nextX}px`;
+        noButton.style.top = `${nextY}px`;
+        noButton.style.transform = `rotate(${attempt % 2 === 0 ? '-3' : '3'}deg) scale(1.04)`;
+
+        attempt += 1;
+        const scale = Math.min(1 + attempt * 0.055, 1.38);
+        yesButton.style.transform = `scale(${scale})`;
+        yesButton.style.paddingInline = `${28 + attempt * 3}px`;
+      }
+
+      yesButton.addEventListener('click', goToNextStage);
+
+      noButton.addEventListener('mouseenter', moveNoButton);
+      noButton.addEventListener('touchstart', moveNoButton, { passive: false });
+      noButton.addEventListener('click', moveNoButton);
+    })();
+  </script>
+</body>
+</html>
